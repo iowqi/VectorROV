@@ -63,7 +63,9 @@ From integrated testing described in the thesis: panoramic pipeline about **~20 
 ## 🚀 Getting started (pointers)
 
 **Firmware:** Open `firmware/CtrBoard-H7_CAN/MDK-ARM` in **Keil MDK** (STM32H7). Expect long build trees—work from CubeMX-exported project files already in-repo.
+
 **Simulation / RL:** See `control/MuJoCoSim/` — create a clean virtual environment, install MuJoCo / Gymnasium / Stable-Baselines3 stack as used by the training scripts there, then run training or evaluation entrypoints (see files under `train/`).
+
 **Vision / NDI / edge:** Runtime primarily targets the **Q6A** edge device for stitching & inference; VR display assumes a receiver path (e.g., NDI + headset app). Treat this repo as the **system reference + firmware/hardware/sim** anchor; edge images may live on device or separate release artifacts.
 
 ---

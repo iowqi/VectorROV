@@ -63,7 +63,9 @@
 ## 🚀 快速上手（指引）
 
 **固件：**使用 **Keil MDK** 打开 `firmware/CtrBoard-H7_CAN/MDK-ARM` 下工程；`Drivers/` 等目录为厂商栈，首次同步勿被体量吓到。
+
 **仿真 / 强化学习：**进入 `control/MuJoCoSim/`，在干净虚拟环境中安装 MuJoCo、Gymnasium、Stable-Baselines3 等依赖后，按 `train/` 等目录内入口脚本运行。
+
 **视觉 / 边缘端：**拼接、推理与 NDI 主推流在 **Q6A** 类设备上运行；头显侧需 NDI/流媒体接收与渲染。**本仓库侧重电控、结构、仿真与系统说明**，边缘镜像与 VR 客户端可能分开发布。
 
 ---
