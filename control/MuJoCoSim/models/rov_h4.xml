@@ -1,0 +1,150 @@
+<mujoco model="rov_h4_underwater">
+  <!-- ========== 模型总览 ==========
+    四矢量推进器 ROV（H 形框架），坐标系：+x 前进，+y 左舷，+z 向上。
+    机身：50×20×10 cm；四臂：沿 ±y，长 15 cm，直径 10 cm；推进器舱：高 10 cm，直径 10 cm，默认推力沿局部 +z。
+    推进器绕局部 y 轴转动（铰链在臂末端），推力方向始终在 xz 平面内。
+    淡水：option.density≈1000 kg/m³ 用于流体阻力/附加质量等；MuJoCo 流体模型不含静浮力（阿基米德力），
+    因此不能单靠 geom 密度与水体密度相等实现“重力=浮力”。中性浮力采用各刚体 gravcomp="1" 抵消重力来模拟。
+  -->
+
+  <!-- compiler：角度单位、欧拉顺序、关节限位自动推断 -->
+  <compiler angle="radian" eulerseq="xyz" autolimits="true"/>
+
+  <!-- option：仿真步长、重力、流体密度/黏度、积分器、接触锥、全局风速（可代码里改） -->
+  <option timestep="0.002" gravity="0 0 -9.81"
+          density="1000"
+          viscosity="0.001"
+          integrator="implicitfast"
+          cone="elliptic"
+          wind="0 0 0"/>
+
+  <!-- visual：视口光照与相机默认方位（仅显示，不影响动力学） -->
+  <visual>
+    <headlight diffuse="0.6 0.7 0.8" ambient="0.3 0.35 0.4"/>
+    <global azimuth="140" elevation="-20"/>
+  </visual>
+
+  <!-- default：geom/joint/site/motor 的类默认属性，子元素未写明的从这里继承 -->
+  <default>
+    <geom type="cylinder" condim="3" friction="0.6 0.05 0.001" contype="1" conaffinity="1"
+          density="1000" fluidshape="ellipsoid"/>
+    <joint type="hinge" axis="0 1 0" damping="0.08" armature="0.002"/>
+    <site size="0.015" rgba="0.9 0.9 0.2 0.5"/>
+    <motor ctrllimited="true" ctrlrange="-1 1" forcelimited="true" forcerange="-30 30"/>
+  </default>
+
+  <!-- asset：纹理与材质（水面、地面棋盘格、机身/臂/推进器配色） -->
+  <asset>
+    <texture name="water_tex" type="2d" builtin="flat" rgb1="0.15 0.35 0.55" rgb2="0.1 0.25 0.4" width="1" height="1"/>
+    <material name="water_mat" texture="water_tex" reflectance="0.1" texuniform="true"/>
+    <texture name="floor_tex" type="2d" builtin="checker" rgb1="0.12 0.14 0.16" rgb2="0.18 0.2 0.22" width="256" height="256"/>
+    <material name="floor_mat" texture="floor_tex" texrepeat="8 8" texuniform="true" reflectance="0.2"/>
+    <material name="hull" rgba="0.25 0.28 0.32 1"/>
+    <material name="arm" rgba="0.35 0.38 0.42 1"/>
+    <material name="thruster" rgba="0.2 0.45 0.55 1"/>
+  </asset>
+
+  <!-- worldbody：世界坐标系下的静态场景 + ROV 根体 -->
+  <worldbody>
+    <!-- 定向光 -->
+    <light pos="1 1 2" dir="-1 -1 -2" diffuse="1 1 1"/>
+    <!-- 水底参考平面（z=-3） -->
+    <geom name="floor" type="plane" size="5 5 0.01" material="floor_mat" pos="0 0 -3"/>
+    <!-- 水面示意（z=0），无碰撞；ROV 在水下初始化 -->
+    <geom name="water_surface" type="plane" size="6 6 0.01" material="water_mat" pos="0 0 0"
+          contype="0" conaffinity="0" rgba="0.2 0.5 0.7 0.25"/>
+
+    <!-- rov：整机浮动基；gravcomp 模拟中性浮力（抵消重力） -->
+    <body name="rov" pos="0 0 -0.8" gravcomp="1">
+      <!-- 6 自由度自由关节：基体位姿 -->
+      <freejoint name="rov_free"/>
+      <!-- 惯性由子 geom 密度自动合成；总排水体积约 1.585e-2 m^3 => 中性浮力质量约 15.85 kg -->
+      <!-- imu：姿态/加速度/角速度传感器挂载点（机体原点） -->
+      <site name="imu" type="sphere" pos="0 0 0" size="0.012" rgba="1 0.8 0 0.9"/>
+      <!-- pressure_port：深度/静压推算用参考点（机身下方） -->
+      <site name="pressure_port" pos="0 0 -0.05" type="sphere" size="0.008" rgba="0 1 0.5 0.7"/>
+
+      <!-- 机身（H 形横梁）：50×20×10 cm 长方体 -->
+      <geom name="hull" type="box" size="0.25 0.1 0.05" material="hull" density="1000" fluidshape="ellipsoid"/>
+
+      <!-- 四臂：圆柱沿 ±y，直径 10 cm，臂长 15 cm，左右对称布置在 x=±0.2 -->
+      <!-- 后左臂：x=-0.2，y 从机身到 +y 外伸 -->
+      <geom name="arm_nx_py" material="arm" fromto="-0.2 0.01 0 -0.2 0.25 0" size="0.05" density="1000" fluidshape="ellipsoid"/>
+      <!-- 后右臂：x=-0.2，y 从机身到 -y 外伸 -->
+      <geom name="arm_nx_ny" material="arm" fromto="-0.2 -0.1 0 -0.2 -0.25 0" size="0.05" density="1000" fluidshape="ellipsoid"/>
+      <!-- 前左臂：x=+0.2，y 从机身到 +y 外伸 -->
+      <geom name="arm_px_py" material="arm" fromto="0.2 0.1 0 0.2 0.25 0" size="0.05" density="1000" fluidshape="ellipsoid"/>
+      <!-- 前右臂：x=+0.2，y 从机身到 -y 外伸 -->
+      <geom name="arm_px_ny" material="arm" fromto="0.2 -0.1 0 0.2 -0.25 0" size="0.05" density="1000" fluidshape="ellipsoid"/>
+
+      <!-- ========== 四推进器子体：每臂末端一个矢量舱，绕局部 y 铰链；局部 +z 为推力轴 ========== -->
+      <!-- 后左外推进器：x=-0.2, y=+0.25 -->
+      <body name="thr_nx_py" pos="-0.2 0.25 0" gravcomp="1">
+        <joint name="thr_nx_py_yaw" limited="true" range="-3.1415926 3.1415926"/>
+        <geom name="geom_thr_nx_py" type="cylinder" size="0.05 0.05" zaxis="0 0 1" material="thruster" density="1000" fluidshape="ellipsoid" contype="0" conaffinity="0"/>
+        <site name="site_thr_nx_py" pos="0 0 0.05" zaxis="0 0 1" size="0.02"/>
+      </body>
+      <!-- 后右外推进器：x=-0.2, y=-0.25 -->
+      <body name="thr_nx_ny" pos="-0.2 -0.25 0" gravcomp="1">
+        <joint name="thr_nx_ny_yaw" limited="true" range="-3.1415926 3.1415926"/>
+        <geom name="geom_thr_nx_ny" type="cylinder" size="0.05 0.05" zaxis="0 0 1" material="thruster" density="1000" fluidshape="ellipsoid" contype="0" conaffinity="0"/>
+        <site name="site_thr_nx_ny" pos="0 0 0.05" zaxis="0 0 1" size="0.02"/>
+      </body>
+      <!-- 前左外推进器：x=+0.2, y=+0.25 -->
+      <body name="thr_px_py" pos="0.2 0.25 0" gravcomp="1">
+        <joint name="thr_px_py_yaw" limited="true" range="-3.1415926 3.1415926"/>
+        <geom name="geom_thr_px_py" type="cylinder" size="0.05 0.05" zaxis="0 0 1" material="thruster" density="1000" fluidshape="ellipsoid" contype="0" conaffinity="0"/>
+        <site name="site_thr_px_py" pos="0 0 0.05" zaxis="0 0 1" size="0.02"/>
+      </body>
+      <!-- 前右外推进器：x=+0.2, y=-0.25 -->
+      <body name="thr_px_ny" pos="0.2 -0.25 0" gravcomp="1">
+        <joint name="thr_px_ny_yaw" limited="true" range="-3.1415926 3.1415926"/>
+        <geom name="geom_thr_px_ny" type="cylinder" size="0.05 0.05" zaxis="0 0 1" material="thruster" density="1000" fluidshape="ellipsoid" contype="0" conaffinity="0"/>
+        <site name="site_thr_px_ny" pos="0 0 0.05" zaxis="0 0 1" size="0.02"/>
+      </body>
+    </body>
+  </worldbody>
+
+  <!-- actuator：控制通道定义；前 4 路偏航伺服，后 4 路推力电机 -->
+  <actuator>
+    <!-- position：ctrl[0:4]，各推进器绕 y 轴目标角 [rad]；采用保守增益确保数值稳定 -->
+    <position name="yaw_nx_py" joint="thr_nx_py_yaw" kp="80" kv="6"
+              ctrlrange="-3.1415926 3.1415926"/>
+    <position name="yaw_nx_ny" joint="thr_nx_ny_yaw" kp="80" kv="6"
+              ctrlrange="-3.1415926 3.1415926"/>
+    <position name="yaw_px_py" joint="thr_px_py_yaw" kp="80" kv="6"
+              ctrlrange="-3.1415926 3.1415926"/>
+    <position name="yaw_px_ny" joint="thr_px_ny_yaw" kp="80" kv="6"
+              ctrlrange="-3.1415926 3.1415926"/>
+    <!-- motor：ctrl[4:8]，推力作用在对应 site 局部 +z -->
+    <motor name="thrust_nx_py" site="site_thr_nx_py" gear="0 0 25 0 0 0"/>
+    <motor name="thrust_nx_ny" site="site_thr_nx_ny" gear="0 0 25 0 0 0"/>
+    <motor name="thrust_px_py" site="site_thr_px_py" gear="0 0 25 0 0 0"/>
+    <motor name="thrust_px_ny" site="site_thr_px_ny" gear="0 0 25 0 0 0"/>
+  </actuator>
+
+  <!-- sensor：仿真可读传感器，供观测/控制栈使用 -->
+  <sensor>
+    <!-- IMU：线加速度、角速度、磁强（地磁需外部注入时才有物理意义） -->
+    <accelerometer name="imu_accel" site="imu"/>
+    <gyro name="imu_gyro" site="imu"/>
+    <magnetometer name="imu_mag" site="imu"/>
+    <!-- 机体姿态四元数（相对世界） -->
+    <framequat name="imu_quat" objtype="body" objname="rov"/>
+    <!-- 机体线速度/角速度（世界系），补全 RL 常用状态 -->
+    <framelinvel name="imu_linvel_world" objtype="site" objname="imu"/>
+    <frameangvel name="imu_angvel_world" objtype="site" objname="imu"/>
+    <!-- 世界坐标位置：imu 与压力口，用于深度/静压换算（水面 z=0 时 depth≈-pos_z） -->
+    <framepos name="imu_pos_world" objtype="site" objname="imu"/>
+    <framepos name="pressure_port_pos" objtype="site" objname="pressure_port"/>
+    <!-- 各推进器矢量角 [rad]，用于推力分配与观测 -->
+    <jointpos name="thr_nx_py_angle" joint="thr_nx_py_yaw"/>
+    <jointpos name="thr_nx_ny_angle" joint="thr_nx_ny_yaw"/>
+    <jointpos name="thr_px_py_angle" joint="thr_px_py_yaw"/>
+    <jointpos name="thr_px_ny_angle" joint="thr_px_ny_yaw"/>
+    <jointvel name="thr_nx_py_rate" joint="thr_nx_py_yaw"/>
+    <jointvel name="thr_nx_ny_rate" joint="thr_nx_ny_yaw"/>
+    <jointvel name="thr_px_py_rate" joint="thr_px_py_yaw"/>
+    <jointvel name="thr_px_ny_rate" joint="thr_px_ny_yaw"/>
+  </sensor>
+</mujoco>

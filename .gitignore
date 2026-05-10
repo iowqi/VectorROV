@@ -1,0 +1,107 @@
+# =============================================================================
+# Python — 解释器缓存、虚拟环境、常见工具临时文件
+# =============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+.Python
+*.so
+*.egg
+*.egg-info/
+.eggs/
+dist/
+build/
+wheels/
+pip-wheel-metadata/
+
+# Virtual environments
+venv/
+.venv/
+ENV/
+env/
+.virtualenv/
+
+# 测试 / 静态检查 / Jupyter
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+.ipynb_checkpoints/
+*.cover
+.hypothesis/
+.cache/
+
+# =============================================================================
+# Keil µVision / MDK-ARM — 编译与调试产物（保留 *.uvprojx / *.uvoptx 等工程源文件）
+# =============================================================================
+*.o
+*.d
+*.crf
+*.lst
+*.map
+*.lnp
+*.dep
+*.axf
+*.elf
+*.hex
+*.bin
+*.lib
+*.htm
+*.build_log.htm
+*.iex
+*.plg
+*.tra
+*.bak
+*.sct.bak
+
+# 个人界面与调试（协作时避免冲突）
+*.uvguix
+*.uvguix.*
+
+# 常见 MDK 输出目录
+**/MDK-ARM/Objects/
+**/MDK-ARM/Listings/
+**/MDK-ARM/DebugConfig/
+
+# SEGGER J-Link（Keil 联调时生成）
+JLinkLog.txt
+JLinkSettings.ini
+
+# =============================================================================
+# XFLOW / CFD — 流体仿真输出（网格迭代、场数据、后处理导出等，体积通常很大）
+# 目录名按你本机习惯增删；若需入库某目录下的小文件：`git add -f <路径>`
+# =============================================================================
+**/xflow_output/
+**/xflow_outputs/
+**/XFlow_Results/
+**/XFLOW_Results/
+**/xflow_workspace/
+**/cfd_results/
+**/CFD_Results/
+**/cfd_cache/
+**/simulation_runs/
+**/sim_runs/
+**/field_cache/
+**/postprocessing/
+**/post_processing/
+
+# 场量 / 导出（若与同扩展名源代码冲突请改为 `some_dir/**/*.ext` 形式）
+*.cgns
+*.case
+
+# =============================================================================
+# 通用
+# =============================================================================
+*.log
+*.tmp
+*.temp
+*~
+Thumbs.db
+Desktop.ini
+.DS_Store
+.idea/
