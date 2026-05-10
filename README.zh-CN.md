@@ -10,7 +10,7 @@
 
 ---
 
-## 🤖 实物一览
+## 🤖 原型实物图
 
 <p align="center">
   <img src="assets/img/rov_physical_prototype.jpg" alt="VectorROV 实物样机" width="720"/>
@@ -20,7 +20,7 @@
 
 ---
 
-## ✨ 要点
+## ✨ 主要工作
 
 - **🧭 四矢量推进** — 提升力与力矩的可表达范围；推进舱采用 **磁驱快拆式水密结构**，便于维护（详见论文机械章节）。
 - **⚙️ STM32H723 + CAN** — **FDCAN1 / FDCAN2** 分流：舵向（DM3510 类）与推进（**VESC / FOC**）；**IMU + 气压/水压** 反馈支撑姿态与深度估计。
@@ -36,8 +36,6 @@
 
 ## 🏗️ 架构示意（论文插图）
 
-SVG 位于 `assets/diagrams/`，与论文第 2 章（总览与子系统）及第 4 章（姿态）一致。
-
 | 系统总体框图（§2.1） | 电控与通信子框图（§2.2） |
 |:-:|:-:|
 | ![系统总体](assets/diagrams/2-1.svg) | ![电控子系统](assets/diagrams/2-3.svg) |
@@ -49,8 +47,6 @@ SVG 位于 `assets/diagrams/`，与论文第 2 章（总览与子系统）及第
 ---
 
 ## 🗂️ 仓库结构说明
-
-> 若使用全文 `tree.txt` 作参考，请注意其中包含本地 `.venv` 以及 **Keil 生成的 STM32 驱动树**（体积大）；提交前请用 `.gitignore` 排除虚拟环境与构建产物。
 
 | 路径 | 说明 |
 |------|------|
@@ -66,9 +62,9 @@ SVG 位于 `assets/diagrams/`，与论文第 2 章（总览与子系统）及第
 
 ## 🚀 快速上手（指引）
 
-- **固件：**使用 **Keil MDK** 打开 `firmware/CtrBoard-H7_CAN/MDK-ARM` 下工程；`Drivers/` 等目录为厂商栈，首次同步勿被体量吓到。
-- **仿真 / 强化学习：**进入 `control/MuJoCoSim/`，在干净虚拟环境中安装 MuJoCo、Gymnasium、Stable-Baselines3 等依赖后，按 `train/` 等目录内入口脚本运行。
-- **视觉 / 边缘端：**拼接、推理与 NDI 主推流在 **Q6A** 类设备上运行；头显侧需 NDI/流媒体接收与渲染。**本仓库侧重电控、结构、仿真与系统说明**，边缘镜像与 VR 客户端可能分开发布。
+**固件：**使用 **Keil MDK** 打开 `firmware/CtrBoard-H7_CAN/MDK-ARM` 下工程；`Drivers/` 等目录为厂商栈，首次同步勿被体量吓到。
+**仿真 / 强化学习：**进入 `control/MuJoCoSim/`，在干净虚拟环境中安装 MuJoCo、Gymnasium、Stable-Baselines3 等依赖后，按 `train/` 等目录内入口脚本运行。
+**视觉 / 边缘端：**拼接、推理与 NDI 主推流在 **Q6A** 类设备上运行；头显侧需 NDI/流媒体接收与渲染。**本仓库侧重电控、结构、仿真与系统说明**，边缘镜像与 VR 客户端可能分开发布。
 
 ---
 

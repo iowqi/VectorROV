@@ -16,7 +16,7 @@ The vehicle targets highly maneuverable motion with an **8-actuator** layout (fo
   <img src="assets/img/rov_physical_prototype.jpg" alt="VectorROV physical prototype" width="720"/>
 </p>
 
-<p align="center"><em>Physical prototype: four shrouded thrusters, sealed hull & domes, skid landing gear, and bulkhead interfaces for tether/power.</em></p>
+<p align="center"><em>Physical prototype: four shrouded thrusters, sealed hull & domes, sled-type display stand, and bulkhead interfaces for tether/power.</em></p>
 
 ---
 
@@ -36,8 +36,6 @@ From integrated testing described in the thesis: panoramic pipeline about **~20 
 
 ## 🏗️ Architecture diagrams
 
-High-level views aligned with the thesis (SVG sources under `assets/diagrams/`).
-
 | System overview (Ch.2) | Electronics & comms (Ch.2) |
 |:-:|:-:|
 | ![System overview](assets/diagrams/2-1.svg) | ![Electronics subsystem](assets/diagrams/2-3.svg) |
@@ -49,8 +47,6 @@ High-level views aligned with the thesis (SVG sources under `assets/diagrams/`).
 ---
 
 ## 🗂️ Repository layout
-
-> The exported tree (`tree.txt`) includes local virtualenvs (`.venv`) and full **Keil/STM32** driver trees under `firmware/`—clone `.gitignore` accordingly before committing.
 
 | Path | Role |
 |------|------|
@@ -66,9 +62,9 @@ High-level views aligned with the thesis (SVG sources under `assets/diagrams/`).
 
 ## 🚀 Getting started (pointers)
 
-- **Firmware:** Open `firmware/CtrBoard-H7_CAN/MDK-ARM` in **Keil MDK** (STM32H7). Expect long build trees—work from CubeMX-exported project files already in-repo.
-- **Simulation / RL:** See `control/MuJoCoSim/` — create a clean virtual environment, install MuJoCo / Gymnasium / Stable-Baselines3 stack as used by the training scripts there, then run training or evaluation entrypoints (see files under `train/`).
-- **Vision / NDI / edge:** Runtime primarily targets the **Q6A** edge device for stitching & inference; VR display assumes a receiver path (e.g., NDI + headset app). Treat this repo as the **system reference + firmware/hardware/sim** anchor; edge images may live on device or separate release artifacts.
+**Firmware:** Open `firmware/CtrBoard-H7_CAN/MDK-ARM` in **Keil MDK** (STM32H7). Expect long build trees—work from CubeMX-exported project files already in-repo.
+**Simulation / RL:** See `control/MuJoCoSim/` — create a clean virtual environment, install MuJoCo / Gymnasium / Stable-Baselines3 stack as used by the training scripts there, then run training or evaluation entrypoints (see files under `train/`).
+**Vision / NDI / edge:** Runtime primarily targets the **Q6A** edge device for stitching & inference; VR display assumes a receiver path (e.g., NDI + headset app). Treat this repo as the **system reference + firmware/hardware/sim** anchor; edge images may live on device or separate release artifacts.
 
 ---
 
